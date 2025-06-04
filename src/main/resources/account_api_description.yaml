@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: Banking API Specification for account operations
+  description: |-
+    A simple banking API that allows two operations:
+    - get account balance given account number
+    - deposit amount to a account
+  version: 1.0-SNAPSHOT
+servers:
+  - url: https://testenvironment.org/api/v1
+  - url: https://prodenvironment.org/api/v1
+tags:
+  - name: accounts
+    description: Operations between bank accounts
+paths:
+  /account:
+    get:
+      tags:
+        - accounts
+      summary: Get all accounts
+      description: Retrieve a list of all accounts in the system
+      operationId: getAccount
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountNotFoundError'
+  /account/deposit:
+    post:
+      tags:
+        - accounts
+      summary: Deposit amount to account
+      description: Initiates a deposit operation of a desired amount to the account specified
+      operationId: depositToAccount
+      requestBody:
+        description: Account number and desired amount to deposit
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+        required: true
+      responses:
+        204:
+          description: Success
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountNotFoundError'
+  /account/create:
+    post:
+      tags:
+        - accounts
+      summary: Create a new account
+      description: create a new account in the bank
+      operationId: createAccount
+      requestBody:
+        description: Data required to create a new account
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      responses:
+        201:
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        400:
+          description: invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountNotFoundError'
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        balance:
+          type: integer
+    AccountNotFoundError:
+      type: object
+      properties:
+        message:
+          type: string
+    DepositRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        depositAmount:
+          type: integer
