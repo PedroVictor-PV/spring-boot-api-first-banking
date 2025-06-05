@@ -1,28 +1,33 @@
 openapi: 3.0.3
 info:
-  title: Banking API Specification for account operations
+  title: API de banco para realizar operações de conta
   description: |-
-    A simple banking API that allows two operations:
-    - get account balance given account number
-    - deposit amount to a account
+    API de banco que realiza as seguintes operações:
+    - criar conta
+    - deletar conta
+    - buscar conta
+    -
+    - depositar um valor na conta
+    - sacar um valor da conta
+
   version: 1.0-SNAPSHOT
 servers:
   - url: https://testenvironment.org/api/v1
   - url: https://prodenvironment.org/api/v1
 tags:
   - name: accounts
-    description: Operations between bank accounts
+    description: Operações de contas bancárias
 paths:
   /account:
     get:
       tags:
         - accounts
-      summary: Get all accounts
-      description: Retrieve a list of all accounts in the system
+      summary: buscar todas as contas
+      description: devolve uma lista com todas as contas no sistema
       operationId: getAccount
       responses:
         200:
-          description: Success
+          description: Successo
           content:
             application/json:
               schema:
@@ -30,20 +35,21 @@ paths:
                 items:
                   $ref: '#/components/schemas/Account'
         404:
-          description: Account not found
+          description: conta nao encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountNotFoundError'
+                 $ref: '#/components/schemas/ErrorResponse'
+
   /account/deposit:
     post:
       tags:
         - accounts
-      summary: Deposit amount to account
-      description: Initiates a deposit operation of a desired amount to the account specified
+      summary: Depositar quantia na conta
+      description: Iniciar operação de deposito em uma conta especifica
       operationId: depositToAccount
       requestBody:
-        description: Account number and desired amount to deposit
+        description: Numero da conta e valor a depositar
         content:
           application/json:
             schema:
@@ -51,22 +57,53 @@ paths:
         required: true
       responses:
         204:
-          description: Success
+          description: Successo
         404:
-          description: Account not found
+          description: conta nao encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountNotFoundError'
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /account/withdraw:
+    post:
+      tags:
+        - accounts
+      summary: sacar uma quantia
+      description: executar uma operaçao de saque a partir do número da conta
+      operationId: withdrawToAccount
+      requestBody:
+        description: numero da conta e valor para sacar
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+        required: true
+      responses:
+        204:
+          description: saque realizado
+        400:
+          description: informações invalidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: conta nao encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /account/create:
     post:
       tags:
         - accounts
-      summary: Create a new account
-      description: create a new account in the bank
+      summary: Criar nova conta
+      description: criar uma nova conta no banco
       operationId: createAccount
       requestBody:
-        description: Data required to create a new account
+        description: Dados para criaçao da conta
         content:
           application/json:
             schema:
@@ -74,17 +111,48 @@ paths:
         required: true
       responses:
         201:
-          description: Account created successfully
+          description: conta criada com sucesso
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
         400:
-          description: invalid input
+          description: informaçoes invalidas
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountNotFoundError'
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /account/{accountNumber}:
+    delete:
+      tags:
+        - accounts
+      summary: deletar conta
+      description: Deletar a conta do banco a partir do numero da conta
+      operationId: deleteAccount
+      parameters:
+        - name: accountNumber
+          in: path
+          required: true
+          description: numero da conta para deletar
+          schema:
+            type: string
+      responses:
+        204:
+          description: conta deletada com sucesso
+        400:
+          description: dados invalidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: Conta inexistente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
     Account:
@@ -94,11 +162,6 @@ components:
           type: string
         balance:
           type: integer
-    AccountNotFoundError:
-      type: object
-      properties:
-        message:
-          type: string
     DepositRequest:
       type: object
       properties:
@@ -106,3 +169,15 @@ components:
           type: string
         depositAmount:
           type: integer
+    WithdrawRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        withdrawAmount:
+          type: integer
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
