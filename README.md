@@ -175,7 +175,7 @@ curl -X DELETE http://localhost:8080/account/12345
 
 **Pedro Victor**
 - 📧 Email: pedro.cavalcante0515@gmail.com
-- 🐙 GitHub: [PedroVictor-PV(https://github.com/PedroVictor-PV)]
+- 🐙 GitHub: [PedroVictor-PV](https://github.com/PedroVictor-PV)
 
 ---
 
